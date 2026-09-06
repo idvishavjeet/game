@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Google Sheets connection test">
+<title>Google Sheets Connection Test</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(circle at top,#172554 0,#0b1220 45%,#03060b 100%);
+  color:#fff;
+}
+
+.card{
+  width:min(100%,430px);
+  padding:30px;
+  border-radius:24px;
+  background:rgba(15,23,42,.88);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 25px 80px rgba(0,0,0,.5);
+  backdrop-filter:blur(16px);
+}
+
+.icon{
+  width:70px;
+  height:70px;
+  margin:0 auto 18px;
+  border-radius:20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:34px;
+  background:#172554;
+}
+
+h1{
+  text-align:center;
+  font-size:25px;
+  margin:0 0 8px;
+}
+
+.subtitle{
+  text-align:center;
+  color:#a8b4c7;
+  font-size:14px;
+  line-height:1.5;
+  margin:0 0 25px;
+}
+
+label{
+  display:block;
+  margin-bottom:8px;
+  font-size:14px;
+  font-weight:700;
+}
+
+.input-wrap{
+  position:relative;
+}
+
+input{
+  width:100%;
+  height:54px;
+  padding:0 15px;
+  border-radius:13px;
+  border:1px solid #33445e;
+  outline:none;
+  background:#070e1a;
+  color:#fff;
+  font-size:18px;
+}
+
+input::placeholder{
+  color:#66758d;
+}
+
+input:focus{
+  border-color:#668cff;
+  box-shadow:0 0 0 3px rgba(102,140,255,.12);
+}
+
+button{
+  width:100%;
+  height:54px;
+  margin-top:16px;
+  border:0;
+  border-radius:13px;
+  background:#4f7cff;
+  color:#fff;
+  font-size:16px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+button:hover{
+  filter:brightness(1.08);
+}
+
+button:disabled{
+  opacity:.65;
+  cursor:not-allowed;
+}
+
+#result{
+  display:none;
+  margin-top:18px;
+  padding:15px;
+  border-radius:13px;
+  font-size:14px;
+  line-height:1.55;
+}
+
+.success{
+  display:block!important;
+  background:rgba(34,197,94,.12);
+  border:1px solid rgba(74,222,128,.3);
+  color:#bbf7d0;
+}
+
+.error{
+  display:block!important;
+  background:rgba(239,68,68,.12);
+  border:1px solid rgba(248,113,113,.3);
+  color:#fecaca;
+}
+
+.info{
+  display:block!important;
+  background:rgba(59,130,246,.12);
+  border:1px solid rgba(96,165,250,.3);
+  color:#bfdbfe;
+}
+
+.footer{
+  text-align:center;
+  margin-top:18px;
+  color:#64748b;
+  font-size:11px;
+  line-height:1.5;
+}
+
+.status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:14px;
+  font-size:12px;
+  color:#94a3b8;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#64748b;
+}
+
+@media(max-width:480px){
+  body{padding:14px}
+  .card{padding:23px}
+}
+</style>
+</head>
+
+<body>
+
+<main class="card">
+
+  <div class="icon">📊</div>
+
+  <h1>Google Sheets Test</h1>
+
+  <p class="subtitle">
+    Enter only one number and send it to Google Sheets.
+    This page is only for testing the connection.
+  </p>
+
+  <form id="testForm">
+
+    <label for="testNumber">Test Number</label>
+
+    <div class="input-wrap">
+      <input
+        id="testNumber"
+        type="text"
+        inputmode="numeric"
+        autocomplete="off"
+        maxlength="30"
+        placeholder="Example: 12345"
+        required
+      >
+    </div>
+
+    <button id="sendButton" type="submit">
+      SEND TEST DATA
+    </button>
+
+  </form>
+
+  <div id="result"></div>
+
+  <div class="status">
+    <span class="dot"></span>
+    <span>GitHub Pages → Apps Script → Google Sheets</span>
+  </div>
+
+  <div class="footer">
+    No registration form is included in this test version.
+  </div>
+
+</main>
+
+<script>
+
+/* =========================================================
+   GOOGLE APPS SCRIPT WEB APP URL
+   ========================================================= */
+
+const GOOGLE_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbwio8Y38XYIrBDa1NKmFRyhYl4zfnaTgUbysJq805sBXnMQ28zBSq9t6gzwZ_bjrBj9/exec";
+
+
+/* =========================================================
+   ELEMENTS
+   ========================================================= */
+
+const form = document.getElementById("testForm");
+const input = document.getElementById("testNumber");
+const button = document.getElementById("sendButton");
+const result = document.getElementById("result");
+
+
+/* =========================================================
+   ONLY NUMBERS ALLOWED
+   ========================================================= */
+
+input.addEventListener("input", function(){
+
+  this.value = this.value
+    .replace(/[^0-9]/g,"")
+    .slice(0,30);
+
+});
+
+
+/* =========================================================
+   SEND TEST DATA
+   ========================================================= */
+
+form.addEventListener("submit", async function(event){
+
+  event.preventDefault();
+
+  const number = input.value.trim();
+
+  if(!number){
+
+    showResult(
+      "Please enter a number.",
+      "error"
+    );
+
+    return;
+  }
+
+
+  button.disabled = true;
+  button.textContent = "SENDING...";
+
+  result.className = "";
+  result.style.display = "none";
+
+
+  /*
+    IMPORTANT:
+
+    GitHub Pages and Google Apps Script are different origins.
+    no-cors is intentionally used for this simple connection test.
+
+    The browser cannot read the response, but the POST request
+    can be sent to the Apps Script endpoint.
+  */
+
+  try{
+
+    await fetch(GOOGLE_SCRIPT_URL,{
+
+      method:"POST",
+
+      mode:"no-cors",
+
+      headers:{
+        "Content-Type":"text/plain;charset=utf-8"
+      },
+
+      body:JSON.stringify({
+
+        test:true,
+
+        testNumber:number,
+
+        testTime:new Date().toISOString()
+
+      })
+
+    });
+
+
+    /*
+      With no-cors we cannot know from JavaScript whether the
+      server returned success. Therefore this message means
+      the request was sent. The real confirmation is the row
+      appearing in Google Sheets.
+    */
+
+    showResult(
+
+      "✅ Test request sent.<br><br>" +
+
+      "Test Number: <b>" +
+      escapeHTML(number) +
+      "</b><br><br>" +
+
+      "अब Google Sheet खोलकर देखें। " +
+      "अगर यह number नई row में दिखाई देता है, " +
+      "तो GitHub Pages → Apps Script → Google Sheets connection working है.",
+
+      "success"
+
+    );
+
+    input.value = "";
+
+
+  }catch(error){
+
+    console.error("Google Sheets test error:",error);
+
+    showResult(
+
+      "❌ Request send नहीं हो पाया। " +
+      "Internet connection और Apps Script Web App deployment check करें.",
+
+      "error"
+
+    );
+
+  }finally{
+
+    button.disabled = false;
+    button.textContent = "SEND TEST DATA";
+
+  }
+
+});
+
+
+/* =========================================================
+   RESULT MESSAGE
+   ========================================================= */
+
+function showResult(message,type){
+
+  result.innerHTML = message;
+  result.className = type;
+
+}
+
+
+/* =========================================================
+   BASIC HTML ESCAPE
+   ========================================================= */
+
+function escapeHTML(value){
+
+  return String(value).replace(/[&<>"']/g,function(character){
+
+    const map = {
+
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+
+    };
+
+    return map[character];
+
+  });
+
+}
+
+</script>
+
+</body>
+</html>
