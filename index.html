@@ -1,110 +1,969 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Google Sheets connection test">
-<title>Google Sheets Connection Test</title>
+    <meta charset="UTF-8">
 
-<style>
-*{box-sizing:border-box}
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-body{
-  margin:0;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  font-family:Arial,Helvetica,sans-serif;
-  background:
-    radial-gradient(circle at top,#172554 0,#0b1220 45%,#03060b 100%);
-  color:#fff;
+    <meta
+        name="description"
+        content="Connection Test Panel"
+    >
+
+    <meta
+        name="theme-color"
+        content="#050816"
+    >
+
+    <title>Connection Test Panel</title>
+
+
+    <style>
+
+        /* =====================================
+           RESET
+        ===================================== */
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+
+        /* =====================================
+           BODY
+        ===================================== */
+
+        body{
+
+            min-height:100vh;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            padding:20px;
+
+            font-family:
+                Arial,
+                Helvetica,
+                sans-serif;
+
+            color:#ffffff;
+
+            background:
+                radial-gradient(
+                    circle at 15% 10%,
+                    rgba(59,130,246,.18),
+                    transparent 30%
+                ),
+                radial-gradient(
+                    circle at 85% 90%,
+                    rgba(99,102,241,.12),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    135deg,
+                    #020617,
+                    #07111f,
+                    #020617
+                );
+
+        }
+
+
+        /* =====================================
+           MAIN CONTAINER
+        ===================================== */
+
+        .test-container{
+
+            width:100%;
+            max-width:460px;
+
+        }
+
+
+        /* =====================================
+           CARD
+        ===================================== */
+
+        .test-card{
+
+            position:relative;
+
+            padding:32px;
+
+            border-radius:28px;
+
+            background:
+                rgba(15,23,42,.88);
+
+            border:
+                1px solid
+                rgba(255,255,255,.10);
+
+            box-shadow:
+                0 30px 90px
+                rgba(0,0,0,.55);
+
+            backdrop-filter:
+                blur(20px);
+
+            overflow:hidden;
+
+        }
+
+
+        /* =====================================
+           CARD TOP LIGHT
+        ===================================== */
+
+        .test-card::before{
+
+            content:"";
+
+            position:absolute;
+
+            top:0;
+            left:0;
+            right:0;
+
+            height:2px;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    #4f7cff,
+                    transparent
+                );
+
+        }
+
+
+        /* =====================================
+           ICON
+        ===================================== */
+
+        .test-icon{
+
+            width:74px;
+            height:74px;
+
+            margin:
+                0 auto 20px;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            border-radius:22px;
+
+            font-size:34px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    #162a55,
+                    #0b1730
+                );
+
+            border:
+                1px solid
+                rgba(96,165,250,.20);
+
+            box-shadow:
+                0 12px 35px
+                rgba(37,99,235,.18);
+
+        }
+
+
+        /* =====================================
+           HEADING
+        ===================================== */
+
+        .test-title{
+
+            text-align:center;
+
+            font-size:28px;
+
+            font-weight:800;
+
+            letter-spacing:-.5px;
+
+            margin-bottom:9px;
+
+        }
+
+
+        .test-description{
+
+            text-align:center;
+
+            color:#94a3b8;
+
+            font-size:14px;
+
+            line-height:1.7;
+
+            margin-bottom:28px;
+
+        }
+
+
+        /* =====================================
+           CONNECTION STATUS
+        ===================================== */
+
+        .connection-box{
+
+            display:flex;
+
+            align-items:center;
+
+            gap:10px;
+
+            padding:12px 14px;
+
+            margin-bottom:24px;
+
+            border-radius:13px;
+
+            background:
+                rgba(2,6,23,.55);
+
+            border:
+                1px solid
+                rgba(255,255,255,.07);
+
+        }
+
+
+        .status-dot{
+
+            width:9px;
+            height:9px;
+
+            flex-shrink:0;
+
+            border-radius:50%;
+
+            background:#22c55e;
+
+            box-shadow:
+                0 0 12px
+                rgba(34,197,94,.7);
+
+        }
+
+
+        .status-text{
+
+            font-size:12px;
+
+            color:#cbd5e1;
+
+        }
+
+
+        /* =====================================
+           LABEL
+        ===================================== */
+
+        .input-label{
+
+            display:block;
+
+            margin-bottom:9px;
+
+            font-size:14px;
+
+            font-weight:700;
+
+            color:#e2e8f0;
+
+        }
+
+
+        /* =====================================
+           INPUT
+        ===================================== */
+
+        .number-input{
+
+            width:100%;
+
+            height:56px;
+
+            padding:
+                0 16px;
+
+            border-radius:14px;
+
+            border:
+                1px solid
+                #334155;
+
+            outline:none;
+
+            background:
+                rgba(2,6,23,.75);
+
+            color:#ffffff;
+
+            font-size:18px;
+
+            transition:
+                border-color .2s ease,
+                box-shadow .2s ease;
+
+        }
+
+
+        .number-input::placeholder{
+
+            color:#64748b;
+
+        }
+
+
+        .number-input:focus{
+
+            border-color:#668cff;
+
+            box-shadow:
+                0 0 0 4px
+                rgba(79,124,255,.10);
+
+        }
+
+
+        /* =====================================
+           BUTTON
+        ===================================== */
+
+        .send-button{
+
+            width:100%;
+
+            height:56px;
+
+            margin-top:17px;
+
+            border:none;
+
+            border-radius:14px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    #4f7cff,
+                    #315de6
+                );
+
+            color:#ffffff;
+
+            font-size:15px;
+
+            font-weight:800;
+
+            letter-spacing:.4px;
+
+            cursor:pointer;
+
+            transition:
+                transform .2s ease,
+                filter .2s ease,
+                opacity .2s ease;
+
+        }
+
+
+        .send-button:hover{
+
+            filter:brightness(1.08);
+
+        }
+
+
+        .send-button:active{
+
+            transform:scale(.98);
+
+        }
+
+
+        .send-button:disabled{
+
+            opacity:.65;
+
+            cursor:not-allowed;
+
+        }
+
+
+        /* =====================================
+           RESULT
+        ===================================== */
+
+        .result{
+
+            display:none;
+
+            margin-top:18px;
+
+            padding:16px;
+
+            border-radius:14px;
+
+            font-size:14px;
+
+            line-height:1.6;
+
+        }
+
+
+        .result.success{
+
+            display:block;
+
+            color:#bbf7d0;
+
+            background:
+                rgba(34,197,94,.10);
+
+            border:
+                1px solid
+                rgba(74,222,128,.25);
+
+        }
+
+
+        .result.error{
+
+            display:block;
+
+            color:#fecaca;
+
+            background:
+                rgba(239,68,68,.10);
+
+            border:
+                1px solid
+                rgba(248,113,113,.25);
+
+        }
+
+
+        /* =====================================
+           INFORMATION
+        ===================================== */
+
+        .info{
+
+            margin-top:20px;
+
+            padding:14px;
+
+            border-radius:13px;
+
+            background:
+                rgba(15,23,42,.60);
+
+            border:
+                1px solid
+                rgba(255,255,255,.06);
+
+        }
+
+
+        .info-title{
+
+            font-size:12px;
+
+            font-weight:800;
+
+            color:#cbd5e1;
+
+            margin-bottom:7px;
+
+        }
+
+
+        .info-text{
+
+            font-size:12px;
+
+            line-height:1.6;
+
+            color:#64748b;
+
+        }
+
+
+        /* =====================================
+           FOOTER
+        ===================================== */
+
+        .footer{
+
+            text-align:center;
+
+            margin-top:20px;
+
+            color:#475569;
+
+            font-size:11px;
+
+        }
+
+
+        /* =====================================
+           MOBILE
+        ===================================== */
+
+        @media(max-width:480px){
+
+            body{
+
+                padding:14px;
+
+            }
+
+            .test-card{
+
+                padding:24px;
+
+                border-radius:23px;
+
+            }
+
+            .test-title{
+
+                font-size:24px;
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+    <main class="test-container">
+
+
+        <section class="test-card">
+
+
+            <!-- ICON -->
+
+            <div class="test-icon">
+                🔗
+            </div>
+
+
+            <!-- TITLE -->
+
+            <h1 class="test-title">
+                Connection Test
+            </h1>
+
+
+            <p class="test-description">
+
+                Enter a test number below to verify
+                that the website can successfully
+                send data to the backend.
+
+            </p>
+
+
+            <!-- STATUS -->
+
+            <div class="connection-box">
+
+                <span class="status-dot"></span>
+
+                <span class="status-text">
+                    Backend endpoint configured
+                </span>
+
+            </div>
+
+
+            <!-- FORM -->
+
+            <form id="testForm">
+
+
+                <label
+                    class="input-label"
+                    for="testNumber"
+                >
+                    Test Number
+                </label>
+
+
+                <input
+
+                    class="number-input"
+
+                    id="testNumber"
+
+                    type="text"
+
+                    inputmode="numeric"
+
+                    autocomplete="off"
+
+                    maxlength="30"
+
+                    placeholder="Enter a number"
+
+                    required
+
+                >
+
+
+                <button
+
+                    class="send-button"
+
+                    id="sendButton"
+
+                    type="submit"
+
+                >
+
+                    SEND TEST DATA
+
+                </button>
+
+
+            </form>
+
+
+            <!-- RESULT -->
+
+            <div
+                class="result"
+                id="result"
+                aria-live="polite"
+            ></div>
+
+
+            <!-- INFORMATION -->
+
+            <div class="info">
+
+                <div class="info-title">
+                    Test Mode
+                </div>
+
+                <div class="info-text">
+
+                    This page is currently used only
+                    to test the website-to-backend
+                    data connection. Registration,
+                    login and other features are
+                    intentionally disabled.
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="footer">
+
+                Development Connection Test
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+<script>
+
+
+/* ============================================
+   BACKEND WEB APP URL
+   ============================================ */
+
+const GOOGLE_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycbwQRNCZ5P2GVTY_2Guxacs8KHYzLKy-mVSwFVRWIJPaH9C0IA_4yDryd4VHvtUXsoUv/exec";
+
+
+/* ============================================
+   ELEMENTS
+   ============================================ */
+
+const form =
+document.getElementById("testForm");
+
+const input =
+document.getElementById("testNumber");
+
+const button =
+document.getElementById("sendButton");
+
+const result =
+document.getElementById("result");
+
+
+/* ============================================
+   NUMBER VALIDATION
+   ============================================ */
+
+input.addEventListener(
+    "input",
+    function(){
+
+        this.value =
+            this.value
+            .replace(/[^0-9]/g,"")
+            .slice(0,30);
+
+    }
+);
+
+
+/* ============================================
+   FORM SUBMIT
+   ============================================ */
+
+form.addEventListener(
+    "submit",
+    async function(event){
+
+        event.preventDefault();
+
+
+        const testNumber =
+            input.value.trim();
+
+
+        /* -------------------------------------
+           VALIDATION
+        ------------------------------------- */
+
+        if(!testNumber){
+
+            showResult(
+                "Please enter a test number.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        /* -------------------------------------
+           LOADING STATE
+        ------------------------------------- */
+
+        button.disabled = true;
+
+        button.textContent =
+            "SENDING...";
+
+
+        result.className =
+            "result";
+
+        result.innerHTML = "";
+
+
+        try{
+
+
+            /* ---------------------------------
+               SEND REQUEST
+            --------------------------------- */
+
+            await fetch(
+
+                GOOGLE_SCRIPT_URL,
+
+                {
+
+                    method:"POST",
+
+                    mode:"no-cors",
+
+                    headers:{
+
+                        "Content-Type":
+                        "text/plain;charset=utf-8"
+
+                    },
+
+                    body:JSON.stringify({
+
+                        test:true,
+
+                        testNumber:
+                        testNumber,
+
+                        testTime:
+                        new Date().toISOString()
+
+                    })
+
+                }
+
+            );
+
+
+            /* ---------------------------------
+               RESULT
+            --------------------------------- */
+
+            showResult(
+
+                "✓ Test request sent successfully." +
+
+                "<br><br>" +
+
+                "Test Number: <strong>" +
+
+                escapeHTML(testNumber) +
+
+                "</strong>" +
+
+                "<br><br>" +
+
+                "Now check the backend data table. " +
+
+                "If the number appears there, " +
+
+                "the connection test is successful.",
+
+                "success"
+
+            );
+
+
+            /* Clear input */
+
+            input.value = "";
+
+
+        }
+
+        catch(error){
+
+            console.error(
+                "Connection Test Error:",
+                error
+            );
+
+
+            showResult(
+
+                "✕ Unable to send the test request." +
+
+                "<br><br>" +
+
+                "Please check your internet " +
+                "connection and backend deployment.",
+
+                "error"
+
+            );
+
+        }
+
+
+        /* -------------------------------------
+           RESET BUTTON
+        ------------------------------------- */
+
+        button.disabled = false;
+
+        button.textContent =
+            "SEND TEST DATA";
+
+    }
+);
+
+
+/* ============================================
+   SHOW RESULT
+   ============================================ */
+
+function showResult(
+    message,
+    type
+){
+
+    result.innerHTML =
+        message;
+
+    result.className =
+        "result " + type;
+
 }
 
-.card{
-  width:min(100%,430px);
-  padding:30px;
-  border-radius:24px;
-  background:rgba(15,23,42,.88);
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:0 25px 80px rgba(0,0,0,.5);
-  backdrop-filter:blur(16px);
+
+/* ============================================
+   HTML ESCAPE
+   ============================================ */
+
+function escapeHTML(value){
+
+    return String(value).replace(
+
+        /[&<>"']/g,
+
+        function(character){
+
+            const map = {
+
+                "&":"&amp;",
+
+                "<":"&lt;",
+
+                ">":"&gt;",
+
+                '"':"&quot;",
+
+                "'":"&#039;"
+
+            };
+
+            return map[character];
+
+        }
+
+    );
+
 }
 
-.icon{
-  width:70px;
-  height:70px;
-  margin:0 auto 18px;
-  border-radius:20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:34px;
-  background:#172554;
-}
+</script>
 
-h1{
-  text-align:center;
-  font-size:25px;
-  margin:0 0 8px;
-}
 
-.subtitle{
-  text-align:center;
-  color:#a8b4c7;
-  font-size:14px;
-  line-height:1.5;
-  margin:0 0 25px;
-}
-
-label{
-  display:block;
-  margin-bottom:8px;
-  font-size:14px;
-  font-weight:700;
-}
-
-.input-wrap{
-  position:relative;
-}
-
-input{
-  width:100%;
-  height:54px;
-  padding:0 15px;
-  border-radius:13px;
-  border:1px solid #33445e;
-  outline:none;
-  background:#070e1a;
-  color:#fff;
-  font-size:18px;
-}
-
-input::placeholder{
-  color:#66758d;
-}
-
-input:focus{
-  border-color:#668cff;
-  box-shadow:0 0 0 3px rgba(102,140,255,.12);
-}
-
-button{
-  width:100%;
-  height:54px;
-  margin-top:16px;
-  border:0;
-  border-radius:13px;
-  background:#4f7cff;
-  color:#fff;
-  font-size:16px;
-  font-weight:800;
-  cursor:pointer;
-}
-
-button:hover{
-  filter:brightness(1.08);
+</body>
+</html>  filter:brightness(1.08);
 }
 
 button:disabled{
