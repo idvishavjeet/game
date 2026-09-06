@@ -1,110 +1,201 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tournament Login</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    <meta
-        name="description"
-        content="Connection Test Panel"
-    >
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-    <meta
-        name="theme-color"
-        content="#050816"
-    >
+    .box {
+      width: 90%;
+      max-width: 380px;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.15);
+    }
 
-    <title>Connection Test Panel</title>
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
 
+    input {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
 
-    <style>
+    button {
+      width: 100%;
+      padding: 13px;
+      margin-top: 15px;
+      border: 0;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
 
-        /* =====================================
-           RESET
-        ===================================== */
+    .switch {
+      text-align: center;
+      margin-top: 18px;
+      color: #2563eb;
+      cursor: pointer;
+    }
 
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-        }
+    #msg {
+      text-align: center;
+      margin-top: 15px;
+    }
+  </style>
+</head>
 
+<body>
 
-        /* =====================================
-           BODY
-        ===================================== */
+<div class="box">
 
-        body{
+  <h2 id="title">Login</h2>
 
-            min-height:100vh;
+  <input
+    type="text"
+    id="username"
+    placeholder="Username"
+    autocomplete="username"
+  >
 
-            display:flex;
-            align-items:center;
-            justify-content:center;
+  <input
+    type="password"
+    id="password"
+    placeholder="Password"
+    autocomplete="current-password"
+  >
 
-            padding:20px;
+  <button onclick="submitForm()" id="btn">
+    Login
+  </button>
 
-            font-family:
-                Arial,
-                Helvetica,
-                sans-serif;
+  <div class="switch" onclick="toggleMode()" id="switch">
+    Create New Account
+  </div>
 
-            color:#ffffff;
+  <div id="msg"></div>
 
-            background:
-                radial-gradient(
-                    circle at 15% 10%,
-                    rgba(59,130,246,.18),
-                    transparent 30%
-                ),
-                radial-gradient(
-                    circle at 85% 90%,
-                    rgba(99,102,241,.12),
-                    transparent 30%
-                ),
-                linear-gradient(
-                    135deg,
-                    #020617,
-                    #07111f,
-                    #020617
-                );
+</div>
 
-        }
+<script>
 
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzK5UTsWo3Tpn37DZrVyxUo4giojqEhhGX0FE0QuuJA2qfaQr7Ey2oCnaiXpF8IWuitUw/exec";
 
-        /* =====================================
-           MAIN CONTAINER
-        ===================================== */
+let mode = "login";
 
-        .test-container{
+function toggleMode() {
 
-            width:100%;
-            max-width:460px;
+  if (mode === "login") {
+    mode = "register";
 
-        }
+    document.getElementById("title").innerText = "Register";
+    document.getElementById("btn").innerText = "Register";
+    document.getElementById("switch").innerText =
+      "Already have an account? Login";
 
+  } else {
+    mode = "login";
 
-        /* =====================================
-           CARD
-        ===================================== */
+    document.getElementById("title").innerText = "Login";
+    document.getElementById("btn").innerText = "Login";
+    document.getElementById("switch").innerText =
+      "Create New Account";
+  }
 
-        .test-card{
+  document.getElementById("msg").innerText = "";
+}
 
-            position:relative;
+async function submitForm() {
 
-            padding:32px;
+  const username =
+    document.getElementById("username").value.trim();
 
-            border-radius:28px;
+  const password =
+    document.getElementById("password").value;
 
-            background:
-                rgba(15,23,42,.88);
+  const msg =
+    document.getElementById("msg");
 
-            border:
-                1px solid
+  if (!username || !password) {
+    msg.innerText = "Username and password required";
+    return;
+  }
+
+  msg.innerText = "Please wait...";
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: mode,
+        username: username,
+        password: password
+      })
+    });
+
+    const result = await response.json();
+
+    msg.innerText = result.message;
+
+    if (result.success) {
+
+      localStorage.setItem(
+        "username",
+        result.username || username
+      );
+
+      localStorage.setItem(
+        "wallet",
+        result.wallet || 0
+      );
+
+      if (mode === "register") {
+        alert("Registration successful!");
+        toggleMode();
+      } else {
+        alert("Login successful!");
+        // Yahan baad mein tournament home page add kar sakte hain
+      }
+    }
+
+  } catch (error) {
+
+    msg.innerText =
+      "Connection error. Check Web App deployment.";
+
+    console.error(error);
+  }
+}
+
+</script>
+
+</body>
+</html>                1px solid
                 rgba(255,255,255,.10);
 
             box-shadow:
