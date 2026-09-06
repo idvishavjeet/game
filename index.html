@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProType - Typing Speed Test</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #646669;
+            --active-text: #d1d0c5;
+            --primary-color: #e2b714;
+            --error-color: #ca4754;
+            --correct-color: #d1d0c5;
+            --font-main: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            background: #1e1e1e;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .time-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .time-btn:hover, .time-btn.active {
+            color: var(--primary-color);
+        }
+
+        .typing-area {
+            position: relative;
+            font-size: 1.5rem;
+            line-height: 2.5rem;
+            height: 150px;
+            overflow: hidden;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .text-display {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .text-display span {
+            position: relative;
+        }
+
+        .correct { color: var(--correct-color); }
+        .incorrect { color: var(--error-color); border-bottom: 2px solid var(--error-color); }
+        
+        .active-char::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 2px;
+            background-color: var(--primary-color);
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        #hidden-input {
+            opacity: 0;
+            position: absolute;
+            z-index: -999;
+        }
+
+        .stats-container {
+            display: none;
+            justify-content: space-around;
+            margin-top: 3rem;
+            padding: 2rem;
+            background: #1e1e1e;
+            border-radius: 12px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-title {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+
+        .restart-btn {
+            display: block;
+            margin: 3rem auto 0;
+            background: transparent;
+            border: 2px solid var(--text-color);
+            color: var(--text-color);
+            padding: 0.75rem 2rem;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .restart-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .timer-display {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <div class="logo">ProType.</div>
+            <div class="controls">
+                <button class="time-btn active" data-time="60">1 min</button>
+                <button class="time-btn" data-time="120">2 min</button>
+                <button class="time-btn" data-time="180">3 min</button>
+            </div>
+        </header>
+
+        <div class="timer-display" id="time-left">60s</div>
+
+        <div class="typing-area" id="typing-area" onclick="focusInput()">
+            <input type="text" id="hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+            <div class="text-display" id="text-display"></div>
+        </div>
+
+        <div class="stats-container" id="stats">
+            <div class="stat-box">
+                <div class="stat-title">WPM</div>
+                <div class="stat-value" id="wpm-val">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Accuracy</div>
+                <div class="stat-value" id="acc-val">0%</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-title">Mistakes</div>
+                <div class="stat-value" id="mistakes-val">0</div>
+            </div>
+        </div>
+
+        <button class="restart-btn" onclick="initTest()">Restart Test</button>
+    </div>
+
+    <script>
+        const wordList = [
+            "the", "be", "of", "and", "a", "to", "in", "he", "have", "it", "that", "for", "they", "I", "with", "as", "not", "on", "she", "at", 
+            "by", "this", "we", "you", "do", "but", "from", "or", "which", "one", "would", "all", "will", "there", "say", "who", "make", "when", 
+            "can", "more", "if", "no", "man", "out", "other", "so", "what", "time", "up", "go", "about", "than", "into", "could", "state", "only", 
+            "new", "year", "some", "take", "come", "these", "know", "see", "use", "get", "like", "then", "first", "any", "work", "now", "may", 
+            "such", "give", "over", "think", "most", "even", "find", "day", "also", "after", "way", "many", "must", "look", "before", "great", 
+            "back", "through", "long", "where", "much", "should", "well", "people", "down", "own", "just", "because", "good", "each", "those", 
+            "feel", "seem", "how", "high", "too", "place", "little", "world", "very", "still", "nation", "hand", "old", "life", "tell", "write", "become"
+        ];
+
+        const textDisplay = document.getElementById("text-display");
+        const hiddenInput = document.getElementById("hidden-input");
+        const timeLeftDisplay = document.getElementById("time-left");
+        const statsContainer = document.getElementById("stats");
+        const typingArea = document.getElementById("typing-area");
+        const timeBtns = document.querySelectorAll(".time-btn");
+
+        let timer = 60;
+        let timeLeft = timer;
+        let isTyping = false;
+        let timerInterval;
+        let mistakes = 0;
+        let totalTyped = 0;
+        let currentText = "";
+
+        // Event Listeners for Time Selection
+        timeBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                timeBtns.forEach(b => b.classList.remove("active"));
+                btn.classList.add("active");
+                timer = parseInt(btn.getAttribute("data-time"));
+                initTest();
+            });
+        });
+
+        function generateText() {
+            // Generate a long string of random words
+            currentText = Array.from({ length: 200 }, () => wordList[Math.floor(Math.random() * wordList.length)]).join(" ");
+            
+            textDisplay.innerHTML = "";
+            currentText.split("").forEach(char => {
+                let span = document.createElement("span");
+                span.innerText = char;
+                textDisplay.appendChild(span);
+            });
+            textDisplay.querySelectorAll("span")[0].classList.add("active-char");
+        }
+
+        function initTest() {
+            clearInterval(timerInterval);
+            isTyping = false;
+            timeLeft = timer;
+            mistakes = 0;
+            totalTyped = 0;
+            hiddenInput.value = "";
+            timeLeftDisplay.innerText = `${timeLeft}s`;
+            statsContainer.style.display = "none";
+            typingArea.style.display = "block";
+            
+            generateText();
+            focusInput();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    timeLeftDisplay.innerText = `${timeLeft}s`;
+                } else {
+                    finishTest();
+                }
+            }, 1000);
+        }
+
+        hiddenInput.addEventListener("input", () => {
+            if (!isTyping) {
+                startTimer();
+                isTyping = true;
+            }
+
+            const chars = textDisplay.querySelectorAll("span");
+            const typedChars = hiddenInput.value.split("");
+            
+            totalTyped = typedChars.length;
+            mistakes = 0;
+
+            chars.forEach((charSpan, index) => {
+                let typedChar = typedChars[index];
+                
+                // Remove existing classes
+                charSpan.classList.remove("correct", "incorrect", "active-char");
+
+                if (typedChar == null) {
+                    // Not typed yet
+                } else if (typedChar === charSpan.innerText) {
+                    charSpan.classList.add("correct");
+                } else {
+                    charSpan.classList.add("incorrect");
+                    mistakes++;
+                }
+            });
+
+            // Set active character cursor
+            if (totalTyped < chars.length) {
+                chars[totalTyped].classList.add("active-char");
+            } else {
+                // If user reaches the end of the loaded text, finish early or load more
+                finishTest();
+            }
+
+            // Scroll down as user types
+            if (totalTyped > 0 && totalTyped % 50 === 0) {
+                const activeChar = document.querySelector(".active-char");
+                if(activeChar) activeChar.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        });
+
+        function finishTest() {
+            clearInterval(timerInterval);
+            typingArea.style.display = "none";
+            statsContainer.style.display = "flex";
+            timeLeftDisplay.innerText = "Time's up!";
+
+            let timeTaken = timer - timeLeft;
+            if (timeTaken === 0) timeTaken = 1; // prevent divide by zero
+
+            // Gross WPM Calculation: (Total Characters / 5) / Time in Minutes
+            let grossWPM = (totalTyped / 5) / (timeTaken / 60);
+            
+            // Net WPM: Gross WPM - (Uncorrected Errors / Time in Minutes)
+            let netWPM = grossWPM - (mistakes / (timeTaken / 60));
+            if (netWPM < 0 || isNaN(netWPM)) netWPM = 0;
+
+            // Accuracy Calculation
+            let accuracy = ((totalTyped - mistakes) / totalTyped) * 100;
+            if (isNaN(accuracy) || accuracy < 0) accuracy = 0;
+
+            document.getElementById("wpm-val").innerText = Math.round(netWPM);
+            document.getElementById("acc-val").innerText = `${Math.round(accuracy)}%`;
+            document.getElementById("mistakes-val").innerText = mistakes;
+        }
+
+        function focusInput() {
+            hiddenInput.focus();
+        }
+
+        // Click anywhere to keep focus on input
+        document.addEventListener("click", (e) => {
+            if (e.target.tagName !== "BUTTON") focusInput();
+        });
+
+        // Initialize on load
+        window.onload = initTest;
+    </script>
+</body>
+</html>
